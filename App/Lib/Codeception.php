@@ -19,6 +19,13 @@ class Codeception
     private $sites;
 
     /**
+     * What environment to run codeception as ( --env command)
+     *
+     * @var string
+     */
+    private $env;
+
+    /**
      * Configuration for Codeception
      *
      * Merges the Codeception.yml and Webception Codeception.php
@@ -213,7 +220,7 @@ class Codeception
     public function run(Test $test)
     {
         // Get the full command path to run the test.
-        $command = $this->getCommandPath($test->getType(), $test->getFilename());
+        $command = $this->getCommandPath($test->getType(), $test->getFilename(), $this->getEnv());
 
         // Attempt to set the correct writes to Codeceptions Log path.
         @chmod($this->getLogPath(), 0777);
@@ -239,13 +246,23 @@ class Codeception
     }
 
     /**
+     * Get the environment we're running codeception as
+     *
+     * @return  string
+     */
+    public function getEnv()
+    {
+        return $this->env;
+    }
+
+    /**
      * Full command to run a Codeception test.
      *
      * @param  string $type     Test Type (Acceptance, Functional, Unit)
      * @param  string $filename Name of the Test
      * @return string Full command to execute Codeception with requred parameters.
      */
-    public function getCommandPath($type, $filename)
+    public function getCommandPath($type, $filename, $env = false)
     {
         // Build all the different parameters as part of the console command
         $params = array(
@@ -255,7 +272,6 @@ class Codeception
             "--config=\"{$this->site->getConfig()}\"", // Full path & file of Codeception
             $type,                              // Test Type (Acceptance, Unit, Functional)
             $filename,                          // Filename of the Codeception test
-            "2>&1"                              // Added to force output of running executable to be streamed out
         );
 
         //Run Codeception executable with a PHP command
@@ -270,7 +286,12 @@ class Codeception
         if(isset($this->config['steps']) && $this->config['steps']) {
             $params[] = "--steps";
         }
+        //Add Steps command to command line if set in configuration
+        if($env) {
+            $params[] = "--env ".escapeshellarg($env);
+        }
 
+        $params[] = "2>&1"; // Added to force output of running executable to be streamed out
         // Build the command to be run.
         return implode(' ', $params);
     }

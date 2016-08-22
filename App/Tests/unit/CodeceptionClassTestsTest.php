@@ -21,6 +21,7 @@ class CodeceptionClassTestsTest extends \Codeception\TestCase\Test
 
     private $test_filename = 'WebceptionTestClassTest.php';
     private $test_file;
+    private $test_env = 'dev';
     private $pass_filename = 'TheTestThatPassesCept.php';
     private $fail_filename = 'TheTestThatFailsCept';
     private $test;
@@ -112,6 +113,28 @@ class CodeceptionClassTestsTest extends \Codeception\TestCase\Test
 
         $mock_command        = implode(' ', $params);
         $codeception_command = $codeception->getCommandPath($this->type, $this->test_filename);
+
+        $this->assertEquals($mock_command, $codeception_command);
+    }
+
+    public function testCodeceptionCommandPathWithEnv()
+    {
+        $codeception = $this->codeception;
+        $config      = $this->config;
+
+        $params = array(
+            $this->config['executable'],        // Codeception Executable
+            "run",                              // Command to Codeception
+            "--no-colors",                      // Forcing Codeception to not use colors, if enabled in codeception.yml
+            "--config=\"{$codeception->site->getConfig()}\"", // Full path & file of Codeception
+            $this->type,                              // Test Type (Acceptance, Unit, Functional)
+            $this->test_filename,                          // Filename of the Codeception test
+            '--env "'.$this->test_env.'" '.
+            "2>&1"                              // Added to force output of running executable to be streamed out
+        );
+
+        $mock_command        = implode(' ', $params);
+        $codeception_command = $codeception->getCommandPath($this->type, $this->test_filename, $this->test_env);
 
         $this->assertEquals($mock_command, $codeception_command);
     }

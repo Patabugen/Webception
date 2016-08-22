@@ -82,7 +82,8 @@ If there are any issues Webception will do it's best to tell what you need to do
 
 ### 2. Customise the Webception configuration
 
-There are a few configuration files you can play with in  `/App/Config/codeception.php`.
+There are a few configuration files you can play with in  `/App/Config/codeception.php` (you can also use `/App/Config/codeception-local.php` to
+keep your config out of version control).
 
 #### Adding your own tests to Webception
 
@@ -90,7 +91,9 @@ You can add as many Codeception test suites as you need by adding to the `sites`
 
 ```
 'sites' => array(
-   'Webception' => dirname(__FILE__) .'/../../codeception.yml',
+   'Webception' => array(
+      'path' dirname(__FILE__) .'/../../codeception.yml',
+      'env' => 'development', // optional - sets the --env variable to pass to codeception
 ),
 ```
 Put them in order you want to see in the dropdown. And if you only have one entry, you won't see the dropdown.

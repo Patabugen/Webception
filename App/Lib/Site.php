@@ -150,10 +150,17 @@ class Site
     {
         $filtered = array();
 
-        foreach ($sites as $name => $path) {
+        foreach ($sites as $name => $config) {
+            // If we're using old-style config where the only option is 'path', upgrade it silently
+            if ( ! is_array($config)) {
+                $config = array(
+                    'path' => $config,
+                );
+            }
             $filtered[md5($name)] = array(
                 'name' => $name,
-                'path' => realpath(dirname($path)) .'/' . basename($path)
+                'path' => realpath(dirname($config['path'])) .'/' . basename($config['path']),
+                'env' => isset($config['env']) ? $config['env'] : '',
             );
         }
 
